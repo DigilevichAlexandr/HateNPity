@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime  @default(now())
+
+  videos   Video[]
+  comments Comment[]
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  fileKey     String
+  mimeType    String
+  createdAt   DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  videoId   String
+  userId    String
+  text      String
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([videoId, createdAt])
+  @@index([userId, createdAt])
+}
