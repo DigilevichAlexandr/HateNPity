@@ -9,6 +9,7 @@
 ```bash
 cd web
 cp .env.example .env
+docker compose up -d postgres
 npm install
 npm run db:migrate
 # npm run dev

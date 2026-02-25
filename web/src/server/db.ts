@@ -1,34 +1,43 @@
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "node:path";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: InstanceType<typeof PrismaClient>;
 };
 
-function sqliteFilePathFromDatabaseUrl(databaseUrl: string) {
-  if (!databaseUrl.startsWith("file:")) {
-    throw new Error('DATABASE_URL must start with "file:" for sqlite.');
-  }
-
-  let p = databaseUrl.slice("file:".length);
-  p = (p.split("?")[0] ?? "").trim();
-  if (p.startsWith("//")) p = p.slice(2);
-  if (!p) throw new Error("DATABASE_URL is empty.");
-
-  return path.isAbsolute(p) ? p : path.join(process.cwd(), p);
-}
-
 function createPrismaClient() {
-  const dbPath = sqliteFilePathFromDatabaseUrl(
-    process.env.DATABASE_URL ?? "file:./dev.db",
-  );
+  const databaseUrl =
+    process.env.DATABASE_URL ??
+    "postgresql://postgres:postgres@localhost:5432/hatenpity?schema=public";
 
-  const adapter = new PrismaBetterSqlite3({ url: dbPath });
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    max: Number(process.env.DATABASE_POOL_MAX ?? "10"),
+    idleTimeoutMillis: Number(process.env.DATABASE_IDLE_TIMEOUT_MS ?? "30000"),
+    ssl:
+      process.env.DATABASE_SSL === "true"
+        ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false" }
+        : undefined,
+  });
+
+  const adapter = new PrismaPg(pool, {
+    schema: process.env.DATABASE_SCHEMA || "public",
+    disposeExternalPool: false,
+    onPoolError: (err) => {
+      console.error("[db] pool error:", err.message);
+    },
+    onConnectionError: (err) => {
+      console.error("[db] connection error:", err.message);
+    },
+  });
+
   return new PrismaClient({ adapter });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}

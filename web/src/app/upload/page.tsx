@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function UploadPage() {
   const session = await auth();
 
@@ -70,7 +72,7 @@ export default async function UploadPage() {
               className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-800 hover:file:bg-slate-200"
             />
             <span className="text-xs text-slate-500">
-              Для демо: ограничение 100&nbsp;МБ на файл.
+              Лимит размера файла задаётся переменной MAX_VIDEO_BYTES.
             </span>
           </label>
 

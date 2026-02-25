@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/server/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function VideoPage({
   params,
 }: {
