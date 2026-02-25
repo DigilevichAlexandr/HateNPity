@@ -46,6 +46,16 @@ npm run dev
 
 По умолчанию локально используется `STORAGE_DRIVER=local`, файлы видео пишутся в `web/var/uploads/videos/`.
 
+## Cloud-агенты
+
+Для ускорения подготовки окружения:
+
+```bash
+npm run setup:cloud
+```
+
+Скрипт проверит Node 22+, Docker/Compose, настроит npm cache и выполнит `npm ci` + `prisma generate`.
+
 ## Локальный S3 (опционально)
 
 В `docker-compose.yml` добавлены MinIO и инициализация бакета.

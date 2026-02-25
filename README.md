@@ -17,3 +17,10 @@ npm run db:migrate
 
 Подробности — в `web/README.md`.
 
+## Cloud environment (для агентов)
+
+- Node.js 22 (`.nvmrc`)
+- npm cache: `~/.npm` (`web/.npmrc`)
+- bootstrap script: `scripts/cloud-agent-bootstrap.sh`
+- docs: `docs/cloud-environment.md`
+
