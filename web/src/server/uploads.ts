@@ -1,7 +1,14 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-export const UPLOAD_ROOT = path.join(process.cwd(), "var", "uploads");
+function defaultUploadRoot() {
+  if (process.env.UPLOAD_ROOT) return process.env.UPLOAD_ROOT;
+  // Vercel serverless runtime allows writing only to /tmp.
+  if (process.env.VERCEL === "1") return "/tmp/hatenpity/uploads";
+  return path.join(process.cwd(), "var", "uploads");
+}
+
+export const UPLOAD_ROOT = defaultUploadRoot();
 const VIDEOS_DIR = path.join(UPLOAD_ROOT, "videos");
 
 export async function ensureVideosDir() {
